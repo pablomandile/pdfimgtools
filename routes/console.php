@@ -1,8 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schedule;
-use Illuminate\Support\Facades\Artisan;
 
 Artisan::command('tmp:purge {--minutes=60}', function () {
     $limit = now()->subMinutes((int) $this->option('minutes'))->getTimestamp();

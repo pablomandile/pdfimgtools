@@ -1,42 +1,33 @@
-import type { LucideIcon } from 'lucide-vue-next';
+export type ToolCategory = 'organizar' | 'convertir' | 'editar' | 'seguridad' | 'optimizar';
 
-export interface Auth {
-    user: User;
+export interface Tool {
+    slug: string;
+    name: string;
+    description: string;
+    category: ToolCategory;
+    icon: string;
+    component: string;
+    mode: 'client' | 'server';
+    requires?: 'gs' | 'qpdf' | 'soffice';
+    accept: string;
+    multiple: boolean;
 }
 
-export interface BreadcrumbItem {
-    title: string;
-    href: string;
-}
-
-export interface NavItem {
-    title: string;
-    href: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
+export interface BinaryStatus {
+    label: string;
+    available: boolean;
+    install: string;
 }
 
 export interface SharedData {
     name: string;
-    quote: { message: string; author: string };
-    auth: Auth;
-    ziggy: {
-        location: string;
-        url: string;
-        port: null | number;
-        defaults: Record<string, unknown>;
-        routes: Record<string, string>;
-    };
+    tools: Tool[];
+    categories: Record<ToolCategory, string>;
+    binaries: Record<string, BinaryStatus>;
+    maxUploadMb: number;
+    [key: string]: unknown;
 }
 
-export interface User {
-    id: number;
-    name: string;
-    email: string;
-    avatar?: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
+export interface ToolPageProps {
+    tool: Tool;
 }
-
-export type BreadcrumbItemType = BreadcrumbItem;

@@ -1,30 +1,56 @@
 <script setup lang="ts">
 import { cn } from '@/lib/utils';
-import * as icons from 'lucide-vue-next';
+import {
+    ArrowDownUp,
+    Combine,
+    File,
+    FileMinus,
+    FileOutput,
+    FileText,
+    FileType,
+    ImagePlus,
+    Images,
+    ListOrdered,
+    Lock,
+    LockOpen,
+    Minimize2,
+    RefreshCw,
+    RotateCw,
+    Scissors,
+    Signature,
+    Stamp,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 
-interface Props {
-    name: string;
-    class?: string;
-    size?: number | string;
-    color?: string;
-    strokeWidth?: number | string;
-}
+/**
+ * Ícono por nombre (el que figura en config/tools.php). Se importan solo los
+ * que se usan: `import *` de lucide mete los ~1500 íconos en el bundle.
+ */
+const icons = {
+    ArrowDownUp,
+    Combine,
+    FileMinus,
+    FileOutput,
+    FileText,
+    FileType,
+    ImagePlus,
+    Images,
+    ListOrdered,
+    Lock,
+    LockOpen,
+    Minimize2,
+    RefreshCw,
+    RotateCw,
+    Scissors,
+    Signature,
+    Stamp,
+};
 
-const props = withDefaults(defineProps<Props>(), {
-    class: '',
-    size: 16,
-    strokeWidth: 2,
-});
+const props = withDefaults(defineProps<{ name: string; class?: string }>(), { class: '' });
 
-const className = computed(() => cn('h-4 w-4', props.class));
-
-const icon = computed(() => {
-    const iconName = props.name.charAt(0).toUpperCase() + props.name.slice(1);
-    return (icons as Record<string, any>)[iconName];
-});
+const icon = computed(() => icons[props.name as keyof typeof icons] ?? File);
 </script>
 
 <template>
-    <component :is="icon" :class="className" :size="size" :stroke-width="strokeWidth" :color="color" />
+    <component :is="icon" :class="cn('h-4 w-4', props.class)" />
 </template>
