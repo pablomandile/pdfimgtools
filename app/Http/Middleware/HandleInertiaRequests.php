@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Foundation\Inspiring;
+use App\Services\Binaries;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,15 +36,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
-
-        return array_merge(parent::share($request), [
+        return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'quote' => ['message' => trim($message), 'author' => trim($author)],
-            'auth' => [
-                'user' => $request->user(),
-            ],
-        ]);
+            'tools' => collect(config('tools.list'))
+                ->map(fn ($tool, $slug) => ['slug' => $slug, ...$tool])
+                ->values(),
+            'categories' => config('tools.categories'),
+            'binaries' => fn () => app(Binaries::class)->status(),
+            'maxUploadMb' => config('tools.max_upload_mb'),
+        ];
     }
 }
