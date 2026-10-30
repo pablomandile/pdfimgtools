@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue';
+import InstallButton from '@/components/InstallButton.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import { Link } from '@inertiajs/vue3';
 import { Toaster } from 'vue-sonner';
@@ -20,6 +21,7 @@ import 'vue-sonner/style.css';
                     >
                         Todas las herramientas
                     </Link>
+                    <InstallButton />
                     <ThemeToggle />
                 </nav>
             </div>

@@ -2,9 +2,40 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+        {{-- Chrome dispara beforeinstallprompt antes de que monte Vue: se captura acá. --}}
+        <script>
+            (function () {
+                window.__pwaInstall = { prompt: null, installed: false };
+
+                window.addEventListener('beforeinstallprompt', function (e) {
+                    e.preventDefault();
+                    window.__pwaInstall.prompt = e;
+                    window.dispatchEvent(new CustomEvent('pwa:installable'));
+                });
+
+                window.addEventListener('appinstalled', function () {
+                    window.__pwaInstall.prompt = null;
+                    window.__pwaInstall.installed = true;
+                    window.dispatchEvent(new CustomEvent('pwa:installed'));
+                });
+            })();
+        </script>
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
+
+        <meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#110f15" media="(prefers-color-scheme: dark)">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="PDFImgTools">
+
+        <link rel="manifest" href="/manifest.webmanifest">
+        <link rel="icon" href="/favicon.ico?v=1" sizes="48x48">
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png?v=1">
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=1">
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=1">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
