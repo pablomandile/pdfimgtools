@@ -7,7 +7,7 @@ import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { initializeTheme } from './composables/useAppearance';
 
-const appName = import.meta.env.VITE_APP_NAME || 'AmoralPDF';
+const appName = import.meta.env.VITE_APP_NAME || 'PDFImgTools';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

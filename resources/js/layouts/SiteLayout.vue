@@ -30,7 +30,7 @@ import 'vue-sonner/style.css';
         </main>
 
         <footer class="border-t py-6 text-center text-xs text-muted-foreground">
-            AmoralPDF · uso personal · las herramientas marcadas «en tu navegador» no suben tus archivos a ningún lado
+            PDFImgTools · uso personal · las herramientas marcadas «en tu navegador» no suben tus archivos a ningún lado
         </footer>
 
         <Toaster position="top-center" rich-colors close-button />

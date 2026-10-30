@@ -1,4 +1,4 @@
-# AmoralPDF
+# PDFImgTools
 
 Herramientas PDF para uso personal: unir, dividir, ordenar, rotar, convertir, numerar, firmar, proteger y comprimir.
 
@@ -20,7 +20,7 @@ cp .env.example .env && php artisan key:generate
 npm run build      # o npm run dev mientras se desarrolla
 ```
 
-Con Laragon queda en http://amoralpdf.test (recargá Laragon para que cree el vhost).
+Con Laragon queda en http://pdfimgtools.test (recargá Laragon para que cree el vhost).
 
 ### Programas para las herramientas de servidor (Windows)
 

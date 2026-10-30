@@ -5,6 +5,6 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
 <template>
     <span class="flex items-center gap-2">
         <AppLogoIcon class="size-8 text-primary" />
-        <span class="text-lg font-semibold tracking-tight"> Amoral<span class="text-primary">PDF</span> </span>
+        <span class="text-lg font-semibold tracking-tight"> PDFImg<span class="text-primary">Tools</span> </span>
     </span>
 </template>

@@ -62,7 +62,7 @@ function tmpDirs(): array
  */
 function upload(string $name, string $content): UploadedFile
 {
-    $path = tempnam(sys_get_temp_dir(), 'amoral');
+    $path = tempnam(sys_get_temp_dir(), 'pdfimgtools');
     file_put_contents($path, $content);
 
     return new UploadedFile($path, $name, null, null, true);

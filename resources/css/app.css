@@ -9,7 +9,7 @@ html {
 }
 
 @layer base {
-    /* Paleta AmoralPDF: violeta tinta sobre fondos apenas cálidos. */
+    /* Paleta PDFImgTools: violeta tinta sobre fondos apenas cálidos. */
     :root {
         --background: 40 20% 98%;
         --foreground: 250 25% 12%;
