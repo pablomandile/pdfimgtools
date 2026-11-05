@@ -29,6 +29,7 @@ export function usePdfFile() {
             pages.value = pdf.numPages;
             return true;
         } catch (e) {
+            console.error(e); // el toast es genérico: el motivo real queda en la consola
             const name = (e as { name?: string })?.name;
             toast.error(
                 name === 'PasswordException'

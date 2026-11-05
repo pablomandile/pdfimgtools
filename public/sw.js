@@ -1,5 +1,6 @@
 // Subí el número cuando cambien íconos o manifest: activate borra las cachés viejas.
-const CACHE = 'pdfimgtools-v1';
+// v2: descarta el worker de pdf.js que quedó cacheado como text/plain.
+const CACHE = 'pdfimgtools-v2';
 
 self.addEventListener('install', (event) => {
     event.waitUntil(

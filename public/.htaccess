@@ -26,6 +26,9 @@
 
 <IfModule mod_mime.c>
     AddType application/manifest+json .webmanifest
+    # El worker de pdf.js es un módulo .mjs: servido como text/plain (lo que
+    # hace Hostinger por defecto) el navegador lo rechaza y no abre ningún PDF.
+    AddType text/javascript .mjs
 </IfModule>
 
 # Con estos dos el navegador se entera de que hay versión nueva: el CDN de
