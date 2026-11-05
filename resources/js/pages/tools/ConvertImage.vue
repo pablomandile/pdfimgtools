@@ -5,19 +5,46 @@ import OptionGroup from '@/components/OptionGroup.vue';
 import ToolLayout from '@/components/ToolLayout.vue';
 import { useImageList } from '@/composables/useImageList';
 import { useProcessing } from '@/composables/useProcessing';
-import { baseName, convertImage, downloadAll, formatSize, type ImageFormat, type OutputFile } from '@/lib/files';
+import { baseName, convertImage, downloadAll, formatSize, targetSize, type ImageFormat, type OutputFile, type Resize } from '@/lib/files';
 import type { ToolPageProps } from '@/types';
 import { X } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 defineProps<ToolPageProps>();
 
-const { items, add, remove, clear } = useImageList();
+const { items, loading, add, remove, clear } = useImageList();
 const { busy, progress, run } = useProcessing();
 
 const format = ref<ImageFormat>('jpg');
 const quality = ref(90);
 const background = ref('#ffffff');
+
+const resizeMode = ref<Resize['mode']>('none');
+const maxPx = ref(1920);
+const percent = ref(50);
+
+const resize = computed<Resize>(() =>
+    resizeMode.value === 'max'
+        ? { mode: 'max', px: Math.max(1, maxPx.value || 1) }
+        : resizeMode.value === 'percent'
+          ? { mode: 'percent', value: percent.value }
+          : { mode: 'none' },
+);
+
+// Medidas de la primera imagen, para mostrar cómo queda.
+const firstSize = ref<{ width: number; height: number } | null>(null);
+watch(
+    () => items.value[0]?.url,
+    (url) => {
+        firstSize.value = null;
+        if (!url) return;
+        const img = new Image();
+        img.onload = () => items.value[0]?.url === url && (firstSize.value = { width: img.naturalWidth, height: img.naturalHeight });
+        img.src = url;
+    },
+    { immediate: true },
+);
+const resizedSize = computed(() => firstSize.value && targetSize(firstSize.value.width, firstSize.value.height, resize.value));
 
 const extension = (f: ImageFormat) => (f === 'jpg' ? 'jpg' : f);
 
@@ -29,7 +56,7 @@ function convert() {
 
         for (const [i, item] of items.value.entries()) {
             progress.value = `Imagen ${i + 1} de ${items.value.length}…`;
-            const blob = await convertImage(item.file, format.value, quality.value / 100, background.value);
+            const blob = await convertImage(item.file, format.value, quality.value / 100, background.value, resize.value);
             files.push({ name: `${baseName(item.file.name)}.${extension(format.value)}`, data: blob });
             before += item.file.size;
             after += blob.size;
@@ -44,6 +71,7 @@ function convert() {
 <template>
     <ToolLayout :tool="tool">
         <FileDropzone v-if="items.length === 0" :accept="tool.accept" multiple @files="add" />
+        <p v-if="loading" class="mt-3 text-center text-sm text-muted-foreground">Leyendo imágenes…</p>
 
         <div v-else class="space-y-6">
             <div class="flex items-center justify-between">
@@ -89,6 +117,46 @@ function convert() {
             <div v-if="format === 'jpg'" class="flex items-center gap-3">
                 <input id="bg" v-model="background" type="color" class="h-9 w-12 cursor-pointer rounded border bg-card" />
                 <label for="bg" class="text-sm">Color de fondo para las partes transparentes</label>
+            </div>
+
+            <div class="space-y-3">
+                <OptionGroup
+                    v-model="resizeMode"
+                    label="Tamaño"
+                    :options="[
+                        { value: 'none', label: 'Original', hint: 'Mismas medidas.' },
+                        { value: 'max', label: 'Lado mayor máximo', hint: 'Achica las grandes; no agranda.' },
+                        { value: 'percent', label: 'Porcentaje', hint: 'Escala todas por igual.' },
+                    ]"
+                />
+                <div v-if="resizeMode === 'max'" class="flex items-center gap-2">
+                    <input
+                        id="max-px"
+                        v-model.number="maxPx"
+                        type="number"
+                        min="1"
+                        max="20000"
+                        class="h-10 w-28 rounded-lg border bg-card px-3 text-sm outline-none focus:border-primary"
+                    />
+                    <label for="max-px" class="text-sm text-muted-foreground">píxeles</label>
+                </div>
+                <div v-if="resizeMode === 'percent'">
+                    <label for="percent" class="flex justify-between text-sm font-medium">
+                        Escala <span class="text-muted-foreground">{{ percent }}%</span>
+                    </label>
+                    <input
+                        id="percent"
+                        v-model.number="percent"
+                        type="range"
+                        min="10"
+                        max="100"
+                        step="5"
+                        class="mt-2 w-full accent-[hsl(var(--primary))]"
+                    />
+                </div>
+                <p v-if="resizeMode !== 'none' && firstSize && resizedSize" class="text-xs text-muted-foreground">
+                    {{ items[0].file.name }}: {{ firstSize.width }}×{{ firstSize.height }} → {{ resizedSize.width }}×{{ resizedSize.height }}
+                </p>
             </div>
 
             <ActionBar :label="`Convertir a ${format.toUpperCase()}`" :busy="busy" :progress="progress" @run="convert" />

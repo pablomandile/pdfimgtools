@@ -64,7 +64,13 @@ describe('addWatermark', () => {
     });
 
     it('acepta una imagen como marca', async () => {
-        const out = await addWatermark(await samplePdf(1), { kind: 'image', image: { bytes: PNG, type: 'png' }, opacity: 0.5, angle: 0, layout: 'center' });
+        const out = await addWatermark(await samplePdf(1), {
+            kind: 'image',
+            image: { bytes: PNG, type: 'png' },
+            opacity: 0.5,
+            angle: 0,
+            layout: 'center',
+        });
         expect(await stamped(out)).toEqual([true]);
     });
 

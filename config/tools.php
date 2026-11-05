@@ -16,7 +16,7 @@
 */
 
 $pdf = '.pdf,application/pdf';
-$images = '.jpg,.jpeg,.png,.webp,.gif,.bmp,image/jpeg,image/png,image/webp,image/gif,image/bmp';
+$images = '.jpg,.jpeg,.png,.webp,.gif,.bmp,.heic,.heif,image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif';
 $office = '.doc,.docx,.odt,.rtf,.txt,.xls,.xlsx,.ods,.csv,.ppt,.pptx,.odp';
 
 return [
@@ -93,7 +93,7 @@ return [
 
         'imagen-a-pdf' => [
             'name' => 'Imágenes a PDF',
-            'description' => 'Convertí JPG, PNG o WebP en un PDF, una imagen por página.',
+            'description' => 'Convertí JPG, PNG, WebP o HEIC en un PDF, una imagen por página.',
             'category' => 'convertir',
             'icon' => 'ImagePlus',
             'component' => 'ImagesToPdf',
@@ -113,10 +113,20 @@ return [
         ],
         'convertir-imagen' => [
             'name' => 'Convertir imágenes',
-            'description' => 'Pasá imágenes entre JPG, PNG y WebP, de a varias.',
+            'description' => 'Pasá imágenes (también HEIC de iPhone) a JPG, PNG o WebP y cambiales el tamaño.',
             'category' => 'convertir',
             'icon' => 'RefreshCw',
             'component' => 'ConvertImage',
+            'mode' => 'client',
+            'accept' => $images,
+            'multiple' => true,
+        ],
+        'quitar-fondo' => [
+            'name' => 'Quitar fondo',
+            'description' => 'Dejá el fondo de una imagen transparente: automático con IA o por color.',
+            'category' => 'editar',
+            'icon' => 'Eraser',
+            'component' => 'RemoveBackground',
             'mode' => 'client',
             'accept' => $images,
             'multiple' => true,

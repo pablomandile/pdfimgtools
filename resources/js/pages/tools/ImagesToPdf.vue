@@ -14,7 +14,7 @@ import draggable from 'vuedraggable';
 
 defineProps<ToolPageProps>();
 
-const { items, add, remove } = useImageList();
+const { items, loading, add, remove } = useImageList();
 const { busy, progress, run } = useProcessing();
 
 const options = reactive<ImagesToPdfOptions>({ pageSize: 'a4', orientation: 'auto', margin: 20 });
@@ -40,6 +40,7 @@ function convert() {
 <template>
     <ToolLayout :tool="tool">
         <FileDropzone v-if="items.length === 0" :accept="tool.accept" multiple @files="add" />
+        <p v-if="loading" class="mt-3 text-center text-sm text-muted-foreground">Leyendo imágenes…</p>
 
         <div v-else class="grid gap-8 lg:grid-cols-[1fr_300px]">
             <div>

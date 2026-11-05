@@ -78,19 +78,56 @@ export type ImageFormat = 'jpg' | 'png' | 'webp';
 
 const MIME: Record<ImageFormat, string> = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
 
-/** Dibuja la imagen en un canvas, ya derecha según EXIF. */
-export async function imageToCanvas(file: Blob, background?: string): Promise<HTMLCanvasElement> {
+export type Resize = { mode: 'none' } | { mode: 'max'; px: number } | { mode: 'percent'; value: number };
+
+/** Tamaño final de una imagen de `width`×`height`. «Lado mayor máximo» nunca agranda. */
+export function targetSize(width: number, height: number, resize: Resize = { mode: 'none' }): { width: number; height: number } {
+    let scale = 1;
+    if (resize.mode === 'max') scale = Math.min(1, resize.px / Math.max(width, height));
+    if (resize.mode === 'percent') scale = resize.value / 100;
+
+    return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
+}
+
+/**
+ * Achica de a mitades hasta quedar a menos del doble del destino: un solo
+ * drawImage de 4000 px a 400 px saltea píxeles y queda serruchado.
+ */
+function downscale(source: CanvasImageSource, width: number, height: number, to: { width: number; height: number }): CanvasImageSource {
+    let current = source;
+    let w = width;
+    let h = height;
+
+    while (w / 2 >= to.width && h / 2 >= to.height) {
+        w = Math.round(w / 2);
+        h = Math.round(h / 2);
+        const step = document.createElement('canvas');
+        step.width = w;
+        step.height = h;
+        const ctx = step.getContext('2d')!;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(current, 0, 0, w, h);
+        current = step;
+    }
+
+    return current;
+}
+
+/** Dibuja la imagen en un canvas, ya derecha según EXIF y al tamaño pedido. */
+export async function imageToCanvas(file: Blob, background?: string, resize?: Resize): Promise<HTMLCanvasElement> {
     const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const size = targetSize(bitmap.width, bitmap.height, resize);
     const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
+    canvas.width = size.width;
+    canvas.height = size.height;
 
     const ctx = canvas.getContext('2d')!;
     if (background) {
         ctx.fillStyle = background;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-    ctx.drawImage(bitmap, 0, 0);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(downscale(bitmap, bitmap.width, bitmap.height, size), 0, 0, size.width, size.height);
     bitmap.close();
 
     return canvas;
@@ -103,8 +140,8 @@ export function canvasToBlob(canvas: HTMLCanvasElement, format: ImageFormat, qua
 }
 
 /** Convierte una imagen a otro formato. JPG no tiene transparencia: se rellena con `background`. */
-export async function convertImage(file: Blob, format: ImageFormat, quality: number, background = '#ffffff'): Promise<Blob> {
-    const canvas = await imageToCanvas(file, format === 'jpg' ? background : undefined);
+export async function convertImage(file: Blob, format: ImageFormat, quality: number, background = '#ffffff', resize?: Resize): Promise<Blob> {
+    const canvas = await imageToCanvas(file, format === 'jpg' ? background : undefined, resize);
     return canvasToBlob(canvas, format, quality);
 }
 
