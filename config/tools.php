@@ -17,6 +17,7 @@
 
 $pdf = '.pdf,application/pdf';
 $images = '.jpg,.jpeg,.png,.webp,.gif,.bmp,.heic,.heif,image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif';
+$markdown = '.md,.markdown,.txt,text/markdown,text/plain';
 $office = '.doc,.docx,.odt,.rtf,.txt,.xls,.xlsx,.ods,.csv,.ppt,.pptx,.odp';
 
 return [
@@ -109,6 +110,26 @@ return [
             'component' => 'PdfToImages',
             'mode' => 'client',
             'accept' => $pdf,
+            'multiple' => false,
+        ],
+        'pdf-a-markdown' => [
+            'name' => 'PDF a Markdown',
+            'description' => 'Extraé el texto de un PDF (todo o algunas páginas) como Markdown, con títulos y listas.',
+            'category' => 'convertir',
+            'icon' => 'FileCode',
+            'component' => 'PdfToMarkdown',
+            'mode' => 'client',
+            'accept' => $pdf,
+            'multiple' => false,
+        ],
+        'markdown-a-pdf' => [
+            'name' => 'Markdown a PDF',
+            'description' => 'Convertí un archivo .md (o texto pegado) en un PDF con formato.',
+            'category' => 'convertir',
+            'icon' => 'FileInput',
+            'component' => 'MarkdownToPdf',
+            'mode' => 'client',
+            'accept' => $markdown,
             'multiple' => false,
         ],
         'convertir-imagen' => [
