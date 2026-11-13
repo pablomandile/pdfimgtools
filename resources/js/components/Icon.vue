@@ -2,10 +2,12 @@
 import { cn } from '@/lib/utils';
 import {
     ArrowDownUp,
+    Code,
     Combine,
     Eraser,
     File,
     FileCode,
+    FileCode2,
     FileInput,
     FileMinus,
     FileOutput,
@@ -31,9 +33,11 @@ import { computed } from 'vue';
  */
 const icons = {
     ArrowDownUp,
+    Code,
     Combine,
     Eraser,
     FileCode,
+    FileCode2,
     FileInput,
     FileMinus,
     FileOutput,

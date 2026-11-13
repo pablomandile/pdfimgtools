@@ -18,6 +18,7 @@
 $pdf = '.pdf,application/pdf';
 $images = '.jpg,.jpeg,.png,.webp,.gif,.bmp,.heic,.heif,image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif';
 $markdown = '.md,.markdown,.txt,text/markdown,text/plain';
+$html = '.html,.htm,.xhtml,text/html,application/xhtml+xml';
 $office = '.doc,.docx,.odt,.rtf,.txt,.xls,.xlsx,.ods,.csv,.ppt,.pptx,.odp';
 
 return [
@@ -130,6 +131,26 @@ return [
             'component' => 'MarkdownToPdf',
             'mode' => 'client',
             'accept' => $markdown,
+            'multiple' => false,
+        ],
+        'markdown-a-html' => [
+            'name' => 'Markdown a HTML',
+            'description' => 'Pasá Markdown a una página HTML con estilos o solo al código, con vista previa.',
+            'category' => 'convertir',
+            'icon' => 'FileCode2',
+            'component' => 'MarkdownToHtml',
+            'mode' => 'client',
+            'accept' => $markdown,
+            'multiple' => false,
+        ],
+        'html-a-markdown' => [
+            'name' => 'HTML a Markdown',
+            'description' => 'Convertí una página web o código HTML en Markdown limpio, sin menús ni scripts.',
+            'category' => 'convertir',
+            'icon' => 'Code',
+            'component' => 'HtmlToMarkdown',
+            'mode' => 'client',
+            'accept' => $html,
             'multiple' => false,
         ],
         'convertir-imagen' => [
