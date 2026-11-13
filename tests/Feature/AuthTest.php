@@ -56,13 +56,13 @@ test('el primer ingreso con Google crea la cuenta y entra', function () {
     $this->assertAuthenticatedAs($user);
 });
 
-test('el segundo ingreso reusa la cuenta aunque cambie el nombre', function () {
-    $existing = User::factory()->create(['email' => 'ana@example.com', 'google_id' => 'g-123']);
+test('el segundo ingreso reusa la cuenta y no pisa el nombre que eligió', function () {
+    $existing = User::factory()->create(['email' => 'ana@example.com', 'google_id' => 'g-123', 'name' => 'Anita']);
     fakeGoogle(name: 'Ana P.');
 
     $this->get('/auth/google/callback?code=x')->assertRedirect('/');
 
-    expect(User::count())->toBe(1)->and($existing->fresh()->name)->toBe('Ana P.');
+    expect(User::count())->toBe(1)->and($existing->fresh()->name)->toBe('Anita');
 });
 
 test('un usuario bloqueado no puede entrar', function () {

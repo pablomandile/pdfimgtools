@@ -6,22 +6,22 @@ import type { SharedData } from '@/types';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { ChartColumn, LogOut, UserRound } from 'lucide-vue-next';
-import { computed, watch } from 'vue';
+import { computed, nextTick, onMounted, watch } from 'vue';
 import { toast, Toaster } from 'vue-sonner';
 import 'vue-sonner/style.css';
 
 const page = usePage<SharedData>();
 const user = computed(() => page.props.auth?.user);
 
-// Los mensajes flash del backend (bloqueos, errores de login…) salen como toast.
-watch(
-    () => page.props.flash,
-    (flash) => {
-        if (flash?.error) toast.error(flash.error);
-        if (flash?.success) toast.success(flash.success);
-    },
-    { immediate: true, deep: true },
-);
+// Los mensajes flash del backend (bloqueos, email confirmado…) salen como toast.
+// Recién después de montar: un toast creado antes de que exista el <Toaster>
+// se pierde, y eso pasa siempre en la primera carga (p. ej. el link del mail).
+function showFlash(flash: SharedData['flash'] | undefined) {
+    if (flash?.error) toast.error(flash.error);
+    if (flash?.success) toast.success(flash.success);
+}
+onMounted(() => nextTick(() => showFlash(page.props.flash)));
+watch(() => page.props.flash, showFlash, { deep: true });
 
 function logout() {
     router.post(route('logout'));
@@ -67,6 +67,14 @@ function logout() {
                                 <p class="truncate text-sm font-medium">{{ user.name }}</p>
                                 <p class="truncate text-xs text-muted-foreground">{{ user.email }}</p>
                             </div>
+                            <MenuItem v-slot="{ active }">
+                                <Link
+                                    :href="route('account')"
+                                    :class="['mt-1.5 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm', active && 'bg-muted']"
+                                >
+                                    <UserRound class="size-4" /> Mi cuenta
+                                </Link>
+                            </MenuItem>
                             <MenuItem v-if="user.admin" v-slot="{ active }">
                                 <Link
                                     :href="route('stats.index')"

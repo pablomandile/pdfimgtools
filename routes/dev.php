@@ -24,7 +24,7 @@ Route::get('dev/entrar/{email}', function (string $email) {
         ['email' => strtolower($email)],
         ['name' => Str::title(Str::before($email, '@')), 'google_id' => 'dev-'.$email],
     );
-    $user->forceFill(['last_login_at' => now()])->save();
+    $user->forceFill(['last_login_at' => now(), 'email_verified_at' => $user->email_verified_at ?? now()])->save();
     Auth::login($user, remember: true);
 
     return redirect()->route('home');
