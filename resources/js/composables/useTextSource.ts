@@ -1,4 +1,5 @@
 import { readBytes } from '@/lib/files';
+import { registerUsageSource } from '@/lib/usage';
 import { computed, ref, shallowRef } from 'vue';
 import { toast } from 'vue-sonner';
 
@@ -9,6 +10,8 @@ import { toast } from 'vue-sonner';
 export function useTextSource(decode: (bytes: Uint8Array) => string = (b) => new TextDecoder('utf-8').decode(b)) {
     const file = shallowRef<File | null>(null);
     const text = ref('');
+
+    registerUsageSource(() => ({ files: file.value ? 1 : 0, bytes: new TextEncoder().encode(text.value).length }));
 
     const lines = computed(() => (text.value ? text.value.split('\n').length : 0));
     const empty = computed(() => !text.value.trim());

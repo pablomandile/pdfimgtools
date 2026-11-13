@@ -114,4 +114,19 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Administradores
+    |--------------------------------------------------------------------------
+    |
+    | Emails (separados por coma) que ven la sección Estadísticas y pueden
+    | bloquear usuarios. Se comparan en minúsculas.
+    |
+    */
+
+    'admin_emails' => array_values(array_filter(array_map(
+        fn ($email) => strtolower(trim($email)),
+        explode(',', (string) env('ADMIN_EMAILS', '')),
+    ))),
+
 ];

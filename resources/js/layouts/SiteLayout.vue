@@ -2,9 +2,30 @@
 import AppLogo from '@/components/AppLogo.vue';
 import InstallButton from '@/components/InstallButton.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import { Link } from '@inertiajs/vue3';
-import { Toaster } from 'vue-sonner';
+import type { SharedData } from '@/types';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
+import { Link, router, usePage } from '@inertiajs/vue3';
+import { ChartColumn, LogOut, UserRound } from 'lucide-vue-next';
+import { computed, watch } from 'vue';
+import { toast, Toaster } from 'vue-sonner';
 import 'vue-sonner/style.css';
+
+const page = usePage<SharedData>();
+const user = computed(() => page.props.auth?.user);
+
+// Los mensajes flash del backend (bloqueos, errores de login…) salen como toast.
+watch(
+    () => page.props.flash,
+    (flash) => {
+        if (flash?.error) toast.error(flash.error);
+        if (flash?.success) toast.success(flash.success);
+    },
+    { immediate: true, deep: true },
+);
+
+function logout() {
+    router.post(route('logout'));
+}
 </script>
 
 <template>
@@ -21,8 +42,50 @@ import 'vue-sonner/style.css';
                     >
                         Todas las herramientas
                     </Link>
+                    <Link
+                        v-if="user?.admin"
+                        :href="route('stats.index')"
+                        class="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground sm:flex"
+                    >
+                        <ChartColumn class="size-4" /> Estadísticas
+                    </Link>
                     <InstallButton />
                     <ThemeToggle />
+
+                    <Menu v-if="user" as="div" class="relative">
+                        <MenuButton
+                            class="ml-1 flex items-center rounded-full outline-none ring-ring/40 transition focus-visible:ring-2"
+                            :aria-label="`Cuenta de ${user.name}`"
+                        >
+                            <img v-if="user.avatar" :src="user.avatar" alt="" referrerpolicy="no-referrer" class="size-9 rounded-full border" />
+                            <span v-else class="flex size-9 items-center justify-center rounded-full border bg-muted">
+                                <UserRound class="size-4" />
+                            </span>
+                        </MenuButton>
+                        <MenuItems class="absolute right-0 mt-2 w-60 origin-top-right rounded-xl border bg-card p-1.5 shadow-lg outline-none">
+                            <div class="border-b px-3 py-2">
+                                <p class="truncate text-sm font-medium">{{ user.name }}</p>
+                                <p class="truncate text-xs text-muted-foreground">{{ user.email }}</p>
+                            </div>
+                            <MenuItem v-if="user.admin" v-slot="{ active }">
+                                <Link
+                                    :href="route('stats.index')"
+                                    :class="['mt-1.5 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm', active && 'bg-muted']"
+                                >
+                                    <ChartColumn class="size-4" /> Estadísticas
+                                </Link>
+                            </MenuItem>
+                            <MenuItem v-slot="{ active }">
+                                <button
+                                    type="button"
+                                    :class="['mt-1.5 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm', active && 'bg-muted']"
+                                    @click="logout"
+                                >
+                                    <LogOut class="size-4" /> Cerrar sesión
+                                </button>
+                            </MenuItem>
+                        </MenuItems>
+                    </Menu>
                 </nav>
             </div>
         </header>

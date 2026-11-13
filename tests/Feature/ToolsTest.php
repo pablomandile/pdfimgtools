@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\ToolUsage;
+use App\Models\User;
 use App\Services\Binaries;
 use App\Services\CommandRunner;
 use Illuminate\Http\UploadedFile;
@@ -73,7 +75,31 @@ function pdfUpload(string $name = 'informe.pdf'): UploadedFile
     return upload($name, "%PDF-1.4\n% un pdf de prueba\n".str_repeat('x', 2000));
 }
 
-beforeEach(fn () => array_map(File::deleteDirectory(...), tmpDirs()));
+beforeEach(function () {
+    array_map(File::deleteDirectory(...), tmpDirs());
+    $this->actingAs(User::factory()->create());
+});
+
+test('las herramientas de servidor registran el uso', function () {
+    fakeBinaries(true);
+    fakeRunner('%PDF-1.4 chico');
+
+    $this->post('/procesar/comprimir-pdf', ['file' => pdfUpload(), 'level' => 'media'], ['Accept' => 'application/json'])->assertOk();
+
+    $uso = ToolUsage::sole();
+    expect($uso->only('tool', 'ok', 'files', 'error'))->toBe(['tool' => 'comprimir-pdf', 'ok' => true, 'files' => 1, 'error' => null])
+        ->and($uso->bytes)->toBeGreaterThan(2000)
+        ->and($uso->user_id)->toBe(auth()->id());
+});
+
+test('las herramientas de servidor registran también los errores, con el mensaje que vio el usuario', function () {
+    fakeBinaries(true);
+    fakeRunner(error: 'qpdf: informe.pdf: invalid password');
+
+    $this->postJson('/procesar/desbloquear-pdf', ['file' => pdfUpload(), 'password' => 'mal'])->assertStatus(422);
+
+    expect(ToolUsage::sole()->only('tool', 'ok', 'error'))->toBe(['tool' => 'desbloquear-pdf', 'ok' => false, 'error' => 'La contraseña no es correcta.']);
+});
 
 test('la home lista las herramientas y el estado de los binarios', function () {
     fakeBinaries(false);

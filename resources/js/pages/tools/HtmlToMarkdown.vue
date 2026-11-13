@@ -6,13 +6,14 @@ import ToolLayout from '@/components/ToolLayout.vue';
 import { useTextSource } from '@/composables/useTextSource';
 import { copyText } from '@/lib/clipboard';
 import { baseName, downloadBlob } from '@/lib/files';
+import { collectUsageStats, reportUsage } from '@/lib/usage';
 import { decodeHtmlBytes, htmlToMarkdown } from '@/tools/ops/html';
 import type { ToolPageProps } from '@/types';
 import { Copy } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import { toast } from 'vue-sonner';
 
-defineProps<ToolPageProps>();
+const props = defineProps<ToolPageProps>();
 
 const { file, text, lines, empty, load, reset } = useTextSource(decodeHtmlBytes);
 const scope = ref<'main' | 'all'>('main');
@@ -35,6 +36,7 @@ watch(
 function download() {
     downloadBlob(new Blob([markdown.value], { type: 'text/markdown;charset=utf-8' }), `${name.value}.md`);
     toast.success('Listo.');
+    reportUsage(props.tool.slug, { ok: true, durationMs: 0, ...collectUsageStats() });
 }
 </script>
 

@@ -1,4 +1,5 @@
 import { normalizeImage } from '@/lib/heic';
+import { registerUsageSource } from '@/lib/usage';
 import { onBeforeUnmount, ref } from 'vue';
 import { toast } from 'vue-sonner';
 
@@ -16,6 +17,11 @@ export function useImageList() {
     const items = ref<ImageItem[]>([]);
     const loading = ref(false);
     let nextId = 1;
+
+    registerUsageSource(() => ({
+        files: items.value.length,
+        bytes: items.value.reduce((sum, item) => sum + item.file.size, 0),
+    }));
 
     async function add(files: File[]) {
         loading.value = true;

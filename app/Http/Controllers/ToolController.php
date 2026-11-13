@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ToolUsage;
 use App\Services\Binaries;
 use App\Services\CommandRunner;
 use Illuminate\Http\Request;
@@ -53,6 +54,9 @@ class ToolController extends Controller
         $dir = storage_path('app/tmp/'.Str::uuid());
         File::ensureDirectoryExists($dir);
 
+        $start = hrtime(true);
+        $size = $file->getSize() ?: 0;
+
         try {
             $input = $dir.'/input.'.strtolower($file->getClientOriginalExtension() ?: 'pdf');
             $file->move($dir, basename($input));
@@ -62,8 +66,13 @@ class ToolController extends Controller
             File::deleteDirectory($dir);
             Log::warning("Falló {$slug}: {$e->getMessage()}");
 
-            abort(422, $this->friendlyError($slug, $e->getMessage()));
+            $friendly = $this->friendlyError($slug, $e->getMessage());
+            $this->record($request, $slug, false, $friendly, $size, $start);
+
+            abort(422, $friendly);
         }
+
+        $this->record($request, $slug, true, null, $size, $start);
 
         $baseName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $downloadName = $baseName.$suffix.'.'.pathinfo($output, PATHINFO_EXTENSION);
@@ -78,6 +87,23 @@ class ToolController extends Controller
             'Content-Type' => File::mimeType($output) ?: 'application/octet-stream',
             'Content-Length' => (string) filesize($output),
             'X-Original-Size' => (string) filesize($input),
+        ]);
+    }
+
+    /**
+     * Las herramientas de servidor registran su uso acá; las del navegador
+     * avisan a UsageController cuando terminan.
+     */
+    private function record(Request $request, string $slug, bool $ok, ?string $error, int $bytes, int $startNs): void
+    {
+        ToolUsage::create([
+            'user_id' => $request->user()->id,
+            'tool' => $slug,
+            'ok' => $ok,
+            'error' => $error,
+            'files' => 1,
+            'bytes' => $bytes,
+            'duration_ms' => intdiv(hrtime(true) - $startNs, 1_000_000),
         ]);
     }
 

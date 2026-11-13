@@ -5,6 +5,7 @@ import ToolLayout from '@/components/ToolLayout.vue';
 import { useProcessing } from '@/composables/useProcessing';
 import { downloadAll, formatSize, readBytes } from '@/lib/files';
 import { openPdf, thumbnail } from '@/lib/pdfjs';
+import { registerUsageSource } from '@/lib/usage';
 import { mergePdfs } from '@/tools/ops/pdf';
 import type { ToolPageProps } from '@/types';
 import { ArrowDownAZ, GripVertical, X } from 'lucide-vue-next';
@@ -25,6 +26,8 @@ interface Item {
 const items = ref<Item[]>([]);
 const { busy, run } = useProcessing();
 let nextId = 1;
+
+registerUsageSource(() => ({ files: items.value.length, bytes: items.value.reduce((sum, item) => sum + item.file.size, 0) }));
 
 async function add(files: File[]) {
     for (const file of files) {

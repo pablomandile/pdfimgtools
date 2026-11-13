@@ -1,5 +1,6 @@
 import { readBytes } from '@/lib/files';
 import { openPdf, thumbnail, type PDFDocumentProxy } from '@/lib/pdfjs';
+import { registerUsageSource } from '@/lib/usage';
 import { onBeforeUnmount, reactive, ref, shallowRef } from 'vue';
 import { toast } from 'vue-sonner';
 
@@ -14,6 +15,8 @@ export function usePdfFile() {
     const pages = ref(0);
     const loading = ref(false);
     const thumbs = reactive<Record<number, string>>({});
+
+    registerUsageSource(() => ({ files: file.value ? 1 : 0, bytes: bytes.value?.byteLength ?? 0 }));
 
     async function load(newFile: File): Promise<boolean> {
         reset();
